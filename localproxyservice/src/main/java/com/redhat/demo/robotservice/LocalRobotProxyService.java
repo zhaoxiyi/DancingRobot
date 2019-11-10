@@ -56,15 +56,15 @@ put("CRI-O", "http://192.168.0.10/rpc/Robot.Cmd");
         System.out.println(command.toString());
         String baseURL = robotNames.get(command.getRobotName());
 
-        String commandToSend = String.format("{\"angle\":0,\"throttle\":%n,\"drive_mode\":\"user\",\"recording\":true}",rspeed);
+        String commandToSend = String.format("{\"angle\":0,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
         if(command.getCmdString().equals("left"))
-            commandToSend = String.format("{\"angle\":-0.4,\"throttle\":%n,\"drive_mode\":\"user\",\"recording\":true}",rspeed);
+            commandToSend = String.format("{\"angle\":-0.4,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
         else if(command.getCmdString().equals("right"))
-            commandToSend = String.format("{\"angle\":0.4,\"throttle\":%n,\"drive_mode\":\"user\",\"recording\":true}",rspeed);
+            commandToSend = String.format("{\"angle\":0.4,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
         else if(command.getCmdString().equals("forward"))
-            commandToSend = String.format("{\"angle\":0,\"throttle\":%n,\"drive_mode\":\"user\",\"recording\":true}",rspeed);
+            commandToSend = String.format("{\"angle\":0,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
         else if(command.getCmdString().equals("backward"))
-            commandToSend = String.format("{\"angle\":0,\"throttle\":%n,\"drive_mode\":\"user\",\"recording\":true}",rspeed);
+            commandToSend = String.format("{\"angle\":0,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
         else if(command.getCmdString().equals("stop"))
             commandToSend = String.format("{\"angle\":0,\"throttle\":0,\"drive_mode\":\"user\",\"recording\":false}");
         else if(command.getCmdString().equals("spinLeft"))
