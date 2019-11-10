@@ -36,7 +36,7 @@ public class LocalRobotProxyService {
         private static final long serialVersionUID = 1L;
 
         {
-            put("DM_ROBOT", "http://192.168.0.11/rpc/Robot.Cmd");
+            put("Jetson1", "http://192.168.3.97:8887/drive");
 put("DANCE_ROBOT", "http://192.168.0.10/rpc/Robot.Cmd");
 put("OPENSHIFT", "http://192.168.0.12/rpc/Robot.Cmd");
 put("BUILDAH", "http://192.168.0.13/rpc/Robot.Cmd");
@@ -45,17 +45,40 @@ put("CRI-O", "http://192.168.0.10/rpc/Robot.Cmd");
 
         }
     };
-
+        private Integer robotSpeed = 0.2;
     @POST
     //@Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
     public String hello(Command command) throws IOException {
         RobotEndPoint robotEndPoint = null;
+ 
         try {
         System.out.println(command.toString());
         String baseURL = robotNames.get(command.getRobotName());
 
-        String commandToSend = String.format("{ \"cmd\" : \"%s;\" }", command.getCmdString());
+        String commandToSend = String.format("{\"angle\":0,\"throttle\":%n,\"drive_mode\":\"user\",\"recording\":true}",rspeed);
+        if(command.getCmdString().equals("left"))
+            commandToSend = String.format("{\"angle\":-0.4,\"throttle\":%n,\"drive_mode\":\"user\",\"recording\":true}",rspeed);
+        else if(command.getCmdString().equals("right"))
+            commandToSend = String.format("{\"angle\":0.4,\"throttle\":%n,\"drive_mode\":\"user\",\"recording\":true}",rspeed);
+        else if(command.getCmdString().equals("forward"))
+            commandToSend = String.format("{\"angle\":0,\"throttle\":%n,\"drive_mode\":\"user\",\"recording\":true}",rspeed);
+        else if(command.getCmdString().equals("backward"))
+            commandToSend = String.format("{\"angle\":0,\"throttle\":%n,\"drive_mode\":\"user\",\"recording\":true}",rspeed);
+        else if(command.getCmdString().equals("stop"))
+            commandToSend = String.format("{\"angle\":0,\"throttle\":0,\"drive_mode\":\"user\",\"recording\":false}");
+        else if(command.getCmdString().equals("spinLeft"))
+            commandToSend = String.format("{\"angle\":-1,\"throttle\":0,\"drive_mode\":\"user\",\"recording\":false}");
+        else if(command.getCmdString().equals("spinRight"))
+            commandToSend = String.format("{\"angle\":1,\"throttle\":0,\"drive_mode\":\"user\",\"recording\":false}");
+        else if(command.getCmdString().contains("speed")){
+            Integer n = Integer.valueOf(command.getCmdString().right(3));
+            robotSpeed = n/200;
+           commandToSend = String.format("{\"angle\":0,\"throttle\":0,\"drive_mode\":\"user\",\"recording\":false}");
+         }
+         else 
+            System.out.println("Unknow cmd");
+
         System.out.println("Using url:" + baseURL + " command: " + commandToSend);
         Cmd cmd = new Cmd();
         cmd.setCmd(commandToSend);
