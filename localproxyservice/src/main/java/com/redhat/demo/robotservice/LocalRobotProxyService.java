@@ -45,7 +45,7 @@ put("CRI-O", "http://192.168.0.10/rpc/Robot.Cmd");
 
         }
     };
-        private Integer robotSpeed = 0.2;
+        private double robotSpeed = 0.2;
     @POST
     //@Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -72,8 +72,10 @@ put("CRI-O", "http://192.168.0.10/rpc/Robot.Cmd");
         else if(command.getCmdString().equals("spinRight"))
             commandToSend = String.format("{\"angle\":1,\"throttle\":0,\"drive_mode\":\"user\",\"recording\":false}");
         else if(command.getCmdString().contains("speed")){
-            Integer n = Integer.valueOf(command.getCmdString().right(3));
+            //Integer n = Integer.valueOf(command.getCmdString());
+            double n = Double.parseDouble(command.getCmdString().replace("speed",""));
             robotSpeed = n/200;
+            System.out.println("Change Speed to:"+ robotSpeed);
            commandToSend = String.format("{\"angle\":0,\"throttle\":0,\"drive_mode\":\"user\",\"recording\":false}");
          }
          else 
