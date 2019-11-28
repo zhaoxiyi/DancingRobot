@@ -30,13 +30,33 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 @Path("/command")
 @RegisterForReflection
 public class LocalRobotProxyService {
+public class Myrunnable implements  Runnable{
+        private String parapriv;
+        public Myrunnable(String para){
+             this.parapriv=para;
 
+        }
+           public void run() { 
+               String secURL="http://192.168.1.175:8887/drive";
+               try{
+LocalRobotProxyService.sendToRobot(secURL, this.parapriv);
+                Thread.sleep(500);
+                LocalRobotProxyService.sendToRobot(secURL, "{\"angle\":0,\"throttle\":-0.15,\"drive_mode\":\"user\",\"recording\":false}");
+                Thread.sleep(500);
+                LocalRobotProxyService.sendToRobot(secURL, "{\"angle\":0,\"throttle\":0,\"drive_mode\":\"user\",\"recording\":false}");
+               } 
+               catch(Exception e){
+                   e.printStackTrace();
+               }
+        }
+}
     
     static Map<String, String> robotNames = new ConcurrentHashMap<String, String>() {
         private static final long serialVersionUID = 1L;
 
         {
-            put("Jetson1", "http://192.168.3.97:8887/drive");
+            put("Jetson1", "http://192.168.1.139:8887/drive");
+            put("Jetson2", "http://192.168.1.127:8887/drive");
 put("DANCE_ROBOT", "http://192.168.0.10/rpc/Robot.Cmd");
 put("OPENSHIFT", "http://192.168.0.12/rpc/Robot.Cmd");
 put("BUILDAH", "http://192.168.0.13/rpc/Robot.Cmd");
@@ -58,9 +78,13 @@ put("CRI-O", "http://192.168.0.10/rpc/Robot.Cmd");
 
         String commandToSend = String.format("{\"angle\":0,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
         if(command.getCmdString().equals("left"))
-            commandToSend = String.format("{\"angle\":-0.4,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
-        else if(command.getCmdString().equals("right"))
-            commandToSend = String.format("{\"angle\":0.4,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
+            commandToSend = String.format("{\"angle\":-0.6,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
+        else if(command.getCmdString().contains("speedLeft"))
+            commandToSend = String.format("{\"angle\":-1,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
+         else if(command.getCmdString().equals("right"))
+            commandToSend = String.format("{\"angle\":0.8,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
+        else if(command.getCmdString().contains("speedRight"))
+            commandToSend = String.format("{\"angle\":1,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
         else if(command.getCmdString().equals("forward"))
             commandToSend = String.format("{\"angle\":0,\"throttle\":%g,\"drive_mode\":\"user\",\"recording\":true}",robotSpeed);
         else if(command.getCmdString().equals("backward"))
@@ -74,9 +98,9 @@ put("CRI-O", "http://192.168.0.10/rpc/Robot.Cmd");
         else if(command.getCmdString().contains("speed")){
             //Integer n = Integer.valueOf(command.getCmdString());
             double n = Double.parseDouble(command.getCmdString().replace("speed",""));
-            robotSpeed = n/200;
+            //robotSpeed = n/200;
             System.out.println("Change Speed to:"+ robotSpeed);
-           commandToSend = String.format("{\"angle\":0,\"throttle\":0,\"drive_mode\":\"user\",\"recording\":false}");
+            commandToSend = String.format("{\"angle\":0,\"throttle\":0,\"drive_mode\":\"user\",\"recording\":false}");
          }
          else 
             System.out.println("Unknow cmd");
@@ -85,8 +109,16 @@ put("CRI-O", "http://192.168.0.10/rpc/Robot.Cmd");
         Cmd cmd = new Cmd();
         cmd.setCmd(commandToSend);
         URI apiUrl = new URI(baseURL);
-   
+
+        final String cmdsend=commandToSend;
+        Thread one = new Thread(new Myrunnable(cmdsend));
+        one.start();
+
         sendToRobot(baseURL, commandToSend);
+        Thread.sleep(500);
+        sendToRobot(baseURL, "{\"angle\":0,\"throttle\":-0.15,\"drive_mode\":\"user\",\"recording\":false}");
+         Thread.sleep(500);
+        sendToRobot(baseURL, "{\"angle\":0,\"throttle\":0,\"drive_mode\":\"user\",\"recording\":false}");
         /*
         robotEndPoint = RestClientBuilder.newBuilder()
             .baseUri(apiUrl)
