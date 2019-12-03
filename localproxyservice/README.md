@@ -105,3 +105,9 @@ donkeycar 可以接受json指令 json格式如下：
 
 注意 donkeycar 每接受一个json才会改变上一个状态，也就是说必须接受{"angle":0,"throttle":0,"drive_mode":"user","recording":true}才会停止，否则始终保持上一个接受的状态。
 
+7. 关于Localproxy对OpenShift命令的接收与转发
+在 java.com.redhat.demo.robotservice.LocalRobotProxyService 中定义了Localproxy的接收与转发。
+首先 LocalRobotProxyService 类通过 @Path("/command") 声明接收 /command url的json命令
+接收到的命令会通过类中的 robotNames Map 对象来决定转发给哪个小车
+robotNames 定义为 ConcurrentHashMap<String, String> 其中第一个 String 为给Robot定义的名字，第二个 String 为该Robot接收 json 的url endpoint。 因此任何小车只要可以接收 json 命令，就可以在这个框架下使用。
+由于现场修改的比较匆忙，因此目前小车没有种类之分，是硬解码转给小车的，计划后续还要修改增加小车类型。此外为了同步发给所有小车，目前在发命令时同步建thread发给另一辆小车，这里也需要后续修改。
